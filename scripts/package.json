@@ -1,0 +1,12 @@
+{
+  "name": "motibro-scripts",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "book": "node motibro-book.mjs",
+    "book:dry-run": "node motibro-book.mjs --dry-run"
+  },
+  "dependencies": {
+    "playwright": "^1.52.0"
+  }
+}
