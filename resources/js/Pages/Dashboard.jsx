@@ -39,6 +39,7 @@ function SchedulerPanel({ stats }) {
         { label: 'Intervallum', value: `${stats.interval_minutes} perc` },
         { label: 'Időzóna', value: stats.timezone },
         { label: 'Utolsó automatikus futás', value: stats.last_scheduled_run_at ?? 'Még nem futott' },
+        { label: 'Következő automatikus futás', value: stats.next_scheduled_run_at ?? '—' },
     ];
 
     return (

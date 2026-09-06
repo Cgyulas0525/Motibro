@@ -6,12 +6,13 @@ use App\Models\BookingRule;
 use App\Models\BookingRun;
 use App\Models\SchedulerSetting;
 use App\Services\MotibroBookingService;
+use App\Services\SchedulerWindowService;
 use Inertia\Inertia;
 use Inertia\Response;
 
 class DashboardController extends Controller
 {
-    public function __invoke(MotibroBookingService $bookingService): Response
+    public function __invoke(MotibroBookingService $bookingService, SchedulerWindowService $schedulerWindow): Response
     {
         $scheduler = SchedulerSetting::query()->find(1);
 
@@ -58,6 +59,9 @@ class DashboardController extends Controller
                 'last_scheduled_run_at' => $scheduler?->last_scheduled_run_at
                     ?->timezone('Europe/Budapest')
                     ->format('Y.m.d H:i'),
+                'next_scheduled_run_at' => $scheduler?->enabled
+                    ? $schedulerWindow->nextRunAt()?->timezone('Europe/Budapest')->format('Y.m.d H:i')
+                    : null,
             ],
             'bookingRules' => $bookingRules->values(),
             'recentRuns' => $recentRuns->values(),
