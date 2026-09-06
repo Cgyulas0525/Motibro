@@ -104,7 +104,6 @@ class MotibroBookingService
 
         foreach ($rules as $rule) {
             $cursor = $now->copy()->startOfDay();
-            $found = null;
 
             while ($cursor->lte($end)) {
                 if ((int) $cursor->isoWeekday() === (int) $rule->weekday) {
@@ -112,20 +111,17 @@ class MotibroBookingService
                     $slot = $cursor->copy()->setTime((int) $hour, (int) $minute, 0);
 
                     if ($slot->gte($now)) {
-                        $found = $slot;
-                        break;
+                        $slots[] = [
+                            'rule_id' => $rule->id,
+                            'slot_starts_at' => $slot->toIso8601String(),
+                        ];
                     }
                 }
                 $cursor->addDay();
             }
-
-            if ($found) {
-                $slots[] = [
-                    'rule_id' => $rule->id,
-                    'slot_starts_at' => $found->toIso8601String(),
-                ];
-            }
         }
+
+        usort($slots, fn (array $a, array $b) => strcmp($a['slot_starts_at'], $b['slot_starts_at']));
 
         return $slots;
     }

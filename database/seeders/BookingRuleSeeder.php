@@ -11,9 +11,8 @@ class BookingRuleSeeder extends Seeder
     {
         $defaults = [
             ['weekday' => 1, 'time' => '08:00', 'label' => 'Hétfő reggel', 'sort_order' => 1],
-            ['weekday' => 2, 'time' => '17:00', 'label' => 'Kedd délután', 'sort_order' => 2],
-            ['weekday' => 3, 'time' => '07:00', 'label' => 'Szerda reggel', 'sort_order' => 3],
-            ['weekday' => 4, 'time' => '18:00', 'label' => 'Csütörtök este', 'sort_order' => 4],
+            ['weekday' => 3, 'time' => '07:00', 'label' => 'Szerda reggel', 'sort_order' => 2],
+            ['weekday' => 4, 'time' => '18:00', 'label' => 'Csütörtök este', 'sort_order' => 3],
         ];
 
         foreach ($defaults as $row) {

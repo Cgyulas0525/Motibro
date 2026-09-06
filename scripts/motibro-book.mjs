@@ -120,13 +120,14 @@ async function main() {
 
             const availability = getCardAvailability(event.card_html ?? '');
             const shortEventId = extractShortEventId(event.card_html ?? '');
+            const numericEventId = event.id ?? null;
 
             if (dryRun) {
                 attempts.push({
                     rule_id: ruleId,
                     slot: slotIso,
                     action: 'skipped',
-                    message: `${slotLabel}: dry-run — ${availability}${shortEventId ? ` (${shortEventId})` : ''}.`,
+                    message: `${slotLabel}: dry-run — ${availability}${shortEventId ? ` (${shortEventId}${numericEventId ? `/#${numericEventId}` : ''})` : ''}, hero=${budapestSlotKey(slotIso)}.`,
                 });
                 continue;
             }
@@ -178,6 +179,8 @@ async function main() {
                     baseUrl: config.baseUrl,
                     portalSiteId: config.portalSiteId,
                     shortEventId,
+                    numericEventId,
+                    expectedSlotIso: slotIso,
                     allowWaitlist: availability === 'waitlist' || allowWaitlist,
                 });
 

@@ -16,12 +16,14 @@ export function eventSlotKey(start) {
 }
 
 export function extractShortEventId(cardHtml) {
-    const fromOnclick = cardHtml.match(/show_event_details\('([^']+)'\)/);
+    const normalized = cardHtml.replace(/&amp;/g, '&');
+
+    const fromOnclick = normalized.match(/show_event_details\('([^']+)'\)/);
     if (fromOnclick) {
         return fromOnclick[1];
     }
 
-    const fromHref = cardHtml.match(/[?&]id=([^&"']+)/);
+    const fromHref = normalized.match(/[?&]id=([^&"'\s]+)/);
     return fromHref?.[1] ?? null;
 }
 
