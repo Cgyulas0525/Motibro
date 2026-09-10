@@ -119,8 +119,8 @@ export async function bookEvent(page, { baseUrl, portalSiteId, shortEventId, all
     }
 
     if (/betelt/i.test(body)) {
-        return { action: 'failed', message: 'Az óra betelt, várólista nincs engedélyezve.' };
+        return { action: 'unavailable', message: 'Az óra betelt, várólista nincs engedélyezve.' };
     }
 
-    return { action: 'failed', message: 'Nincs elérhető foglalás gomb az esemény hero szekciójában.' };
+    return { action: 'unavailable', message: 'Nincs elérhető foglalás gomb az esemény hero szekciójában.' };
 }

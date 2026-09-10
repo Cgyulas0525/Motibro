@@ -27,7 +27,7 @@ class RunMotibroBookingIfDue extends Command
 
             $this->info("Automatikus futás #{$run->id} — {$run->status}: {$run->summary}");
 
-            return $run->status === 'completed' ? self::SUCCESS : self::FAILURE;
+            return in_array($run->status, ['completed', 'no_slots'], true) ? self::SUCCESS : self::FAILURE;
         } catch (\RuntimeException $e) {
             if (str_contains($e->getMessage(), 'Már fut egy foglalás')) {
                 $this->comment('Kihagyva: már fut egy foglalás.');

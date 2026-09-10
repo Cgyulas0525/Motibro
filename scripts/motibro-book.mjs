@@ -112,7 +112,7 @@ async function main() {
                 attempts.push({
                     rule_id: ruleId,
                     slot: slotIso,
-                    action: 'failed',
+                    action: 'unavailable',
                     message: `${slotLabel}: nem található esemény a Motibro naptárban.`,
                 });
                 continue;
@@ -146,7 +146,7 @@ async function main() {
                 attempts.push({
                     rule_id: ruleId,
                     slot: slotIso,
-                    action: 'failed',
+                    action: 'unavailable',
                     message: `${slotLabel}: betelt, várólista nem elérhető.`,
                 });
                 continue;
@@ -158,7 +158,7 @@ async function main() {
                 attempts.push({
                     rule_id: ruleId,
                     slot: slotIso,
-                    action: 'failed',
+                    action: 'unavailable',
                     message: `${slotLabel}: csak várólista érhető el, de nincs engedélyezve.`,
                 });
                 continue;
@@ -223,16 +223,26 @@ async function main() {
     const booked = attempts.filter((row) => row.action === 'booked').length;
     const waitlisted = attempts.filter((row) => row.action === 'waitlisted').length;
     const skipped = attempts.filter((row) => row.action === 'skipped').length;
+    const unavailable = attempts.filter((row) => row.action === 'unavailable').length;
     const failed = attempts.filter((row) => row.action === 'failed').length;
+
+    let message;
+    if (dryRun) {
+        message = `Dry-run: ${attempts.length} slot ellenőrizve.`;
+    } else if (failed === 0 && errors.length === 0 && booked === 0 && waitlisted === 0 && unavailable > 0) {
+        message = 'Nincs foglalható időpont';
+    } else if (failed === 0 && errors.length === 0) {
+        message = `Kész — foglalva: ${booked}, várólista: ${waitlisted}, kihagyva: ${skipped}.`;
+    } else {
+        message = `Kész — foglalva: ${booked}, várólista: ${waitlisted}, kihagyva: ${skipped}, hiba: ${failed}.`;
+    }
 
     console.log(JSON.stringify({
         ok: failed === 0 && errors.length === 0,
         dry_run: dryRun,
         attempts,
         errors,
-        message: dryRun
-            ? `Dry-run: ${attempts.length} slot ellenőrizve.`
-            : `Kész — foglalva: ${booked}, várólista: ${waitlisted}, kihagyva: ${skipped}, hiba: ${failed}.`,
+        message,
     }));
 }
 

@@ -45,12 +45,12 @@ class MotibroBookingService
             $result = $this->executeScript($payload, $dryRun);
             $this->persistAttempts($run, $result, $dryRun);
 
-            $ok = (bool) ($result['ok'] ?? false);
+            $outcome = $this->resolveRunOutcome($result);
             $run->update([
-                'status' => $ok ? 'completed' : 'failed',
+                'status' => $outcome['status'],
                 'finished_at' => now(),
-                'summary' => $this->buildSummary($result),
-                'exit_code' => $ok ? 0 : 1,
+                'summary' => $outcome['summary'],
+                'exit_code' => $outcome['exit_code'],
                 'raw_output' => json_encode($result, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT),
             ]);
         } catch (\Throwable $e) {
@@ -197,6 +197,37 @@ class MotibroBookingService
                 ]);
             }
         });
+    }
+
+    private function resolveRunOutcome(array $result): array
+    {
+        $attempts = collect($result['attempts'] ?? []);
+        $booked = $attempts->where('action', 'booked')->count();
+        $waitlisted = $attempts->where('action', 'waitlisted')->count();
+        $failed = $attempts->where('action', 'failed')->count();
+        $unavailable = $attempts->where('action', 'unavailable')->count();
+
+        if ($failed > 0 || ! ($result['ok'] ?? false)) {
+            return [
+                'status' => 'failed',
+                'summary' => $this->buildSummary($result),
+                'exit_code' => 1,
+            ];
+        }
+
+        if ($booked === 0 && $waitlisted === 0 && $unavailable > 0) {
+            return [
+                'status' => 'no_slots',
+                'summary' => 'Nincs foglalható időpont',
+                'exit_code' => 0,
+            ];
+        }
+
+        return [
+            'status' => 'completed',
+            'summary' => $this->buildSummary($result),
+            'exit_code' => 0,
+        ];
     }
 
     private function buildSummary(array $result): string

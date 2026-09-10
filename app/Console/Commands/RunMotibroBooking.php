@@ -23,7 +23,7 @@ class RunMotibroBooking extends Command
 
             $this->info("Futás #{$run->id} — {$run->status}: {$run->summary}");
 
-            return $run->status === 'completed' ? self::SUCCESS : self::FAILURE;
+            return in_array($run->status, ['completed', 'no_slots'], true) ? self::SUCCESS : self::FAILURE;
         } catch (\Throwable $e) {
             $this->error($e->getMessage());
 
