@@ -2,9 +2,13 @@
 
 namespace App\Console\Commands;
 
+use App\Mail\BookingRunFinished;
+use App\Models\BookingRun;
 use App\Services\MotibroBookingService;
 use App\Services\SchedulerWindowService;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 
 class RunMotibroBookingIfDue extends Command
 {
@@ -22,10 +26,16 @@ class RunMotibroBookingIfDue extends Command
         }
 
         try {
+            $lastOfWindow = $scheduler->isLastRunOfWindow();
+
             $run = $bookingService->run(manual: false, dryRun: false);
             $scheduler->markScheduledRun();
 
             $this->info("Automatikus futás #{$run->id} — {$run->status}: {$run->summary}");
+
+            if ($lastOfWindow) {
+                $this->notify($run);
+            }
 
             return in_array($run->status, ['completed', 'no_slots'], true) ? self::SUCCESS : self::FAILURE;
         } catch (\RuntimeException $e) {
@@ -42,6 +52,29 @@ class RunMotibroBookingIfDue extends Command
             $this->error($e->getMessage());
 
             return self::FAILURE;
+        }
+    }
+
+    /**
+     * Az értesítés hibája ne buktassa el a futást.
+     */
+    private function notify(BookingRun $run): void
+    {
+        $recipient = config('motibro.notify_email');
+
+        if (empty($recipient)) {
+            return;
+        }
+
+        try {
+            Mail::to($recipient)->send(new BookingRunFinished($run));
+            $this->info("Értesítés elküldve: {$recipient}");
+        } catch (\Throwable $e) {
+            Log::error('Motibro értesítés küldése sikertelen.', [
+                'booking_run_id' => $run->id,
+                'error' => $e->getMessage(),
+            ]);
+            $this->warn("Értesítés nem küldhető el: {$e->getMessage()}");
         }
     }
 }

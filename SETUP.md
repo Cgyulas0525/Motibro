@@ -74,6 +74,17 @@ docker compose exec app php artisan db:seed --force
 
 A HTTP driver végpontjai: `docs/motibro-selectors.md` → „HTTP API — böngésző nélküli foglalás”.
 
+## Értesítő e-mail
+
+Az ütemezési ablak **utolsó** futása után (amikor a következő ütem már kiesne az ablakból)
+a program e-mailt küld a `MOTIBRO_NOTIFY_EMAIL` címre. A küldés hibája nem buktatja el a
+futást, csak a logba kerül.
+
+- Próba futtatás nélkül: `php artisan motibro:notify-test`
+- A levélben lévő link a `APP_URL` értékére mutat — élesen ez legyen a valódi domain
+- Shared hostingon `MAIL_MAILER=log` **nem küld semmit**; cPanelen `sendmail` a legegyszerűbb,
+  és a `MAIL_FROM_ADDRESS` legyen a domainhez tartozó valódi cím (különben a Gmail eldobja)
+
 ## Szolgáltatások
 
 | Service | Feladat |

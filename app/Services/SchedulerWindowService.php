@@ -79,6 +79,27 @@ class SchedulerWindowService
         return null;
     }
 
+    /**
+     * Ez volt-e a nap utolsó futása, azaz a következő ütem már kiesik az ablakból.
+     */
+    public function isLastRunOfWindow(?Carbon $now = null): bool
+    {
+        $settings = SchedulerSetting::instance();
+
+        if (! $settings->enabled) {
+            return false;
+        }
+
+        $tz = $settings->timezone ?? config('app.timezone', 'Europe/Budapest');
+        $now = ($now ?? now())->timezone($tz);
+
+        if (! $this->isWithinWindow($now, $settings)) {
+            return false;
+        }
+
+        return ! $this->isWithinWindow($now->copy()->addMinutes($settings->interval_minutes), $settings);
+    }
+
     public function markScheduledRun(?Carbon $at = null): void
     {
         $settings = SchedulerSetting::instance();
