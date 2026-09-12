@@ -60,7 +60,19 @@ docker compose exec app php artisan db:seed --force
 
 - http://localhost:8092 — Laravel welcome
 - http://localhost:8029 — Mailpit
-- `docker compose exec app node scripts/motibro-book.mjs --dry-run` — placeholder JSON
+- `docker compose exec app php artisan motibro:book --manual --dry-run` — foglalás próbafutás
+- `docker compose exec app php artisan motibro:probe` — Motibro HTTP kapcsolat ellenőrzése (nem foglal)
+
+## Foglalási driver
+
+`MOTIBRO_DRIVER` dönti el, mi végzi a foglalást:
+
+| Érték | Mit használ | Mikor |
+|-------|-------------|-------|
+| `http` (alapértelmezés) | PHP cURL, közvetlen AJAX kérések | mindenhol, Node **nem** kell — cPanel shared hostingon is |
+| `playwright` | `scripts/motibro-book.mjs` + Chromium | csak hibakereséshez, ahol van Node |
+
+A HTTP driver végpontjai: `docs/motibro-selectors.md` → „HTTP API — böngésző nélküli foglalás”.
 
 ## Szolgáltatások
 
@@ -96,5 +108,6 @@ Motibro/
 
 - Dockerben: `DB_HOST=mysql`, `REDIS_HOST=redis`, `MAIL_HOST=mailhog` — **ne** `127.0.0.1`
 - `VITE_DEV_SERVER_URL=http://localhost:5275` — host gépi mapped port
-- Playwright: `PLAYWRIGHT_BROWSERS_PATH=/ms-playwright` az app konténerben
+- Playwright: `PLAYWRIGHT_BROWSERS_PATH=/ms-playwright` az app konténerben — csak `MOTIBRO_DRIVER=playwright` esetén kell
+- Shared hostingon (cPanel) `MOTIBRO_DRIVER=http`; `NODE_BINARY` és `PLAYWRIGHT_BROWSERS_PATH` ilyenkor felesleges
 - Részletes terv: Obsidian `MotiBroAutoBooker fejlesztési terv.md`

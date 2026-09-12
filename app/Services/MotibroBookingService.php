@@ -6,6 +6,7 @@ use App\Models\BookingAttempt;
 use App\Models\BookingRule;
 use App\Models\BookingRun;
 use App\Models\BookingSlotBooking;
+use App\Services\Motibro\HttpBookingRunner;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
@@ -92,6 +93,7 @@ class MotibroBookingService
             'password' => config('motibro.password'),
             'headless' => config('motibro.headless'),
             'portal_site_id' => config('motibro.portal_site_id'),
+            'club' => config('motibro.club'),
         ];
     }
 
@@ -127,6 +129,13 @@ class MotibroBookingService
     }
 
     private function executeScript(array $payload, bool $dryRun): array
+    {
+        return config('motibro.driver') === 'playwright'
+            ? $this->executeNodeScript($payload, $dryRun)
+            : app(HttpBookingRunner::class)->run($payload, $dryRun);
+    }
+
+    private function executeNodeScript(array $payload, bool $dryRun): array
     {
         $command = [
             config('motibro.node_binary'),

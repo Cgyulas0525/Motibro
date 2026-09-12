@@ -1,10 +1,14 @@
 <?php
 
 return [
+    // 'http' — PHP cURL (Node nélkül, shared hostingon is fut), 'playwright' — Node script
+    'driver' => env('MOTIBRO_DRIVER', 'http'),
     'email' => env('MOTIBRO_EMAIL'),
     'password' => env('MOTIBRO_PASSWORD'),
     'base_url' => env('MOTIBRO_BASE_URL'),
     'portal_site_id' => env('MOTIBRO_PORTAL_SITE_ID', '553'),
+    // A bejelentkező űrlap `club` mezője; alapértelmezés a base_url aldomainje.
+    'club' => env('MOTIBRO_CLUB'),
     'waitlist' => filter_var(env('MOTIBRO_WAITLIST', false), FILTER_VALIDATE_BOOL),
     'headless' => filter_var(env('MOTIBRO_HEADLESS', true), FILTER_VALIDATE_BOOL),
     'weeks_ahead' => (int) env('MOTIBRO_WEEKS_AHEAD', 3),
