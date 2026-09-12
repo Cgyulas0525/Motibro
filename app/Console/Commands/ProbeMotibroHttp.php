@@ -67,13 +67,15 @@ class ProbeMotibroHttp extends Command
                 continue;
             }
 
-            $shortId = EventCard::shortId($cardHtml);
-            $details = $client->eventDetails((string) $shortId);
+            // A részletek panel csak a numerikus azonosítót fogadja el; a rövid id-re
+            // bejelentkezési űrlapot ad vissza.
+            $eventId = (string) ($event['id'] ?? '');
+            $details = $client->eventDetails($eventId);
             $state = EventCard::detailsState($details);
 
             $this->newLine();
-            $this->line("slot: ".EventCard::slotKey((string) $event['start'])
-                ." | api id: {$event['id']} | short: {$shortId}");
+            $this->line('slot: '.EventCard::slotKey((string) $event['start'])
+                ." | api id: {$eventId} | short: ".(EventCard::shortId($cardHtml) ?? '-'));
             $this->line("  kártya: {$availability} | panel: {$state['state']} | panel event_id: ".($state['event_id'] ?? '-'));
             $this->line('  panel válasz hossz: '.strlen($details).' byte');
 
