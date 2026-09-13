@@ -13,6 +13,7 @@ class SchedulerSetting extends Model
         'interval_minutes',
         'timezone',
         'last_scheduled_run_at',
+        'last_notified_at',
     ];
 
     protected function casts(): array
@@ -21,6 +22,7 @@ class SchedulerSetting extends Model
             'enabled' => 'boolean',
             'interval_minutes' => 'integer',
             'last_scheduled_run_at' => 'datetime',
+            'last_notified_at' => 'datetime',
         ];
     }
 

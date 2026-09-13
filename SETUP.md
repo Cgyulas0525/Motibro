@@ -76,9 +76,14 @@ A HTTP driver végpontjai: `docs/motibro-selectors.md` → „HTTP API — böng
 
 ## Értesítő e-mail
 
-Az ütemezési ablak **utolsó** futása után (amikor a következő ütem már kiesne az ablakból)
-a program e-mailt küld a `MOTIBRO_NOTIFY_EMAIL` címre. A küldés hibája nem buktatja el a
-futást, csak a logba kerül.
+Az ütemezési **ablak lezárása után** a program e-mailt küld a `MOTIBRO_NOTIFY_EMAIL` címre
+(`motibro:notify-if-due`, minden percben ellenőriz, ablakonként egyszer küld).
+
+Szándékosan **nem** az utolsó futáshoz van kötve: az ütemező tickek kimaradhatnak (alvó gép,
+terhelés), így nem biztos, hogy az ablak záró sávjába esik futás. Az értesítés akkor megy ki,
+ha az ablak már bezárt és az utolsó futás óta még nem küldtünk levelet
+(`scheduler_settings.last_notified_at`). Sikertelen küldés is elfogyasztja a napi kísérletet,
+hogy ne próbálkozzon percenként — a hiba a logba kerül.
 
 - Próba futtatás nélkül: `php artisan motibro:notify-test`
 - A levélben lévő link a `APP_URL` értékére mutat — élesen ez legyen a valódi domain

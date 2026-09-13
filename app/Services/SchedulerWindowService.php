@@ -80,9 +80,12 @@ class SchedulerWindowService
     }
 
     /**
-     * Ez volt-e a nap utolsó futása, azaz a következő ütem már kiesik az ablakból.
+     * Esedékes-e az értesítés: az ablak lezárult, és az utolsó futás óta még nem küldtünk.
+     *
+     * Szándékosan nem az utolsó futáshoz kötjük, mert az ütemező tickek kimaradhatnak
+     * (alvó gép, terhelés), így az ablak záró sávjába nem biztos, hogy esik futás.
      */
-    public function isLastRunOfWindow(?Carbon $now = null): bool
+    public function shouldNotifyNow(?Carbon $now = null): bool
     {
         $settings = SchedulerSetting::instance();
 
@@ -93,11 +96,26 @@ class SchedulerWindowService
         $tz = $settings->timezone ?? config('app.timezone', 'Europe/Budapest');
         $now = ($now ?? now())->timezone($tz);
 
-        if (! $this->isWithinWindow($now, $settings)) {
+        if ($this->isWithinWindow($now, $settings)) {
             return false;
         }
 
-        return ! $this->isWithinWindow($now->copy()->addMinutes($settings->interval_minutes), $settings);
+        if ($settings->last_scheduled_run_at === null) {
+            return false;
+        }
+
+        return $settings->last_notified_at === null
+            || $settings->last_notified_at->lt($settings->last_scheduled_run_at);
+    }
+
+    public function markNotified(?Carbon $at = null): void
+    {
+        $settings = SchedulerSetting::instance();
+        $tz = $settings->timezone ?? config('app.timezone', 'Europe/Budapest');
+
+        $settings->update([
+            'last_notified_at' => ($at ?? now())->timezone($tz),
+        ]);
     }
 
     public function markScheduledRun(?Carbon $at = null): void

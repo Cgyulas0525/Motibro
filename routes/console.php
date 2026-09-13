@@ -12,3 +12,7 @@ Schedule::command('motibro:book-if-due')
     ->everyMinute()
     ->withoutOverlapping()
     ->runInBackground();
+
+Schedule::command('motibro:notify-if-due')
+    ->everyMinute()
+    ->withoutOverlapping();
