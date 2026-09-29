@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\BookingAttemptController;
+use App\Http\Controllers\BookingBlackoutController;
 use App\Http\Controllers\BookingRuleController;
 use App\Http\Controllers\BookingRunController;
 use App\Http\Controllers\BookingRunTriggerController;
@@ -20,6 +21,7 @@ Route::get('/dashboard', DashboardController::class)
 
 Route::middleware('auth')->group(function () {
     Route::resource('booking-rules', BookingRuleController::class)->except(['show']);
+    Route::resource('booking-blackouts', BookingBlackoutController::class)->except(['show']);
     Route::get('settings/scheduler', [SchedulerSettingsController::class, 'edit'])->name('settings.scheduler.edit');
     Route::patch('settings/scheduler', [SchedulerSettingsController::class, 'update'])->name('settings.scheduler.update');
     Route::post('booking-runs/trigger', BookingRunTriggerController::class)->name('booking-runs.trigger');

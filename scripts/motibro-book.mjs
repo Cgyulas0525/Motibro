@@ -30,6 +30,11 @@ function isSkipped(slotIso, skipSlots) {
     return skipSlots.some((slot) => budapestSlotKey(slot) === key);
 }
 
+function matchingBlackout(slotIso, blackouts) {
+    const date = budapestSlotKey(slotIso).slice(0, 10);
+    return blackouts.find((row) => date >= row.starts_on && date <= (row.ends_on ?? row.starts_on)) ?? null;
+}
+
 function requireConfig(payload) {
     const email = payload.email;
     const password = payload.password;
@@ -103,6 +108,18 @@ async function main() {
                     slot: slotIso,
                     action: 'skipped',
                     message: 'Slot már foglalt (adatbázis).',
+                });
+                continue;
+            }
+
+            const blackout = matchingBlackout(slotIso, payload.blackouts ?? []);
+            if (blackout) {
+                const reason = (blackout.note ?? '').trim() || 'szabadság';
+                attempts.push({
+                    rule_id: ruleId,
+                    slot: slotIso,
+                    action: 'skipped',
+                    message: `${slotLabel}: kihagyva (${reason}).`,
                 });
                 continue;
             }

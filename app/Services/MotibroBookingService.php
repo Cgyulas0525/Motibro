@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\BookingAttempt;
+use App\Models\BookingBlackout;
 use App\Models\BookingRule;
 use App\Models\BookingRun;
 use App\Models\BookingSlotBooking;
@@ -86,6 +87,7 @@ class MotibroBookingService
             ])->values()->all(),
             'slots' => $this->resolveUpcomingSlots($rules),
             'skip_slots' => $skipSlots,
+            'blackouts' => BookingBlackout::payloadRows(),
             'weeks_ahead' => config('motibro.weeks_ahead'),
             'waitlist' => config('motibro.waitlist'),
             'base_url' => config('motibro.base_url'),

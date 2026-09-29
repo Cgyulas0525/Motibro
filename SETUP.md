@@ -74,6 +74,12 @@ docker compose exec app php artisan db:seed --force
 
 A HTTP driver végpontjai: `docs/motibro-selectors.md` → „HTTP API — böngésző nélküli foglalás”.
 
+## Szabadság / kihagyott időszakok
+
+A **Szabadság** menüpontban egy nap vagy tól–ig időszak adható meg. A foglaló ezeken
+a napokon nem jelentkezik órára (`booking_blackouts`). A futás naplójában
+„kihagyva (szabadság)” — vagy a megadott megjegyzés — jelenik meg.
+
 ## Értesítő e-mail
 
 Az ütemezési **ablak lezárása után** a program e-mailt küld a `MOTIBRO_NOTIFY_EMAIL` címre

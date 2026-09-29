@@ -2,6 +2,7 @@
 
 namespace App\Services\Motibro;
 
+use App\Models\BookingBlackout;
 use Carbon\Carbon;
 use Throwable;
 
@@ -35,6 +36,7 @@ class HttpBookingRunner
             $skipKeys = collect($payload['skip_slots'] ?? [])
                 ->map(fn ($slot) => EventCard::slotKeyFromIso((string) $slot))
                 ->all();
+            $blackouts = $payload['blackouts'] ?? [];
             $globalWaitlist = (bool) ($payload['waitlist'] ?? false);
             $weeksAhead = max(1, (int) ($payload['weeks_ahead'] ?? 3));
 
@@ -55,6 +57,14 @@ class HttpBookingRunner
 
                 if (in_array($key, $skipKeys, true)) {
                     $attempts[] = $this->attempt($ruleId, $slotIso, 'skipped', 'Slot már foglalt (adatbázis).');
+
+                    continue;
+                }
+
+                $blackout = BookingBlackout::matching($slotIso, $blackouts);
+                if ($blackout !== null) {
+                    $reason = trim((string) ($blackout['note'] ?? '')) ?: 'szabadság';
+                    $attempts[] = $this->attempt($ruleId, $slotIso, 'skipped', "{$label}: kihagyva ({$reason}).");
 
                     continue;
                 }
